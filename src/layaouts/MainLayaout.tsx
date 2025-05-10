@@ -2,6 +2,7 @@ import React from "react";
 import Sidebar from "../components/SideBar";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import SearchBar from "../components/SearchBar"; // Importamos el componente SearchBar
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -19,10 +20,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-4 bg-gray-50">
-          {/* Optional service card example */}
-         
+          {/* Barra de búsqueda */}
+          <div className="mb-4">
+            <SearchBar />
+          </div>
 
-
+          {/* Contenido principal */}
           {children}
         </main>
       </div>

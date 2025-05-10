@@ -6,13 +6,11 @@ import ServiceCard from '../components/ServiceCard';
 const Home: React.FC = () => {
   return (
     <MainLayout>
-      {/* Hero Section */}
-      <section className="hero bg-blue-600 text-white p-10 text-center">
-        <h2 className="text-3xl font-bold">¡Haz tus entregas de manera rápida y segura!</h2>
-        <p className="mt-4 text-xl">Realiza entregas de comida, compras, paquetes y mucho más.</p>
-        <button className="mt-6 bg-yellow-500 text-black px-6 py-2 rounded-md hover:bg-yellow-600">
-          Realiza tu Pedido
-        </button>
+      {/* Sección Hero */}
+      <section className="hero bg-yellow-500 text-white p-10 text-center">
+        <h2 className="text-3xl font-bold">DomiExpress</h2>
+        <p className="mt-4 text-xl">¡Haz tus entregas de manera rápida y segura!</p>
+        <p className="mt-2 text-lg">Realiza entregas de comida, compras, paquetes y mucho más.</p>
       </section>
 
       {/* Servicios */}
@@ -34,4 +32,5 @@ const Home: React.FC = () => {
 };
 
 export default Home;
+
 
