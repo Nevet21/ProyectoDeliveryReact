@@ -64,6 +64,10 @@ const Sidebar: React.FC = () => {
               <FaPlus className="text-xl" />
               <span>Express</span>
             </div>
+            <div className="flex items-center space-x-3 hover:bg-blue-500 hover:rounded-md p-2 transition cursor-pointer">
+              <FaPlus className="text-xl" />
+              <span>Registrar Restaurante</span>
+            </div>
           </div>
 
           {/* Promociones */}

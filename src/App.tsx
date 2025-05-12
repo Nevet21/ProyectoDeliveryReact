@@ -1,18 +1,56 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { Route, Routes } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 
-const App: React.FC = () => {
-  return (
-    <BrowserRouter>
+import Loader from './common/Loader';
+import routes from './routes';
+import MainLayout from './layaouts/MainLayaout'; // Asegúrate de importar MainLayout
+
+// Importación perezosa de la página de inicio (Home)
+const Home = lazy(() => import('./pages/Home/Home'));
+
+function App() {
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000);
+  }, []);
+
+  return loading ? (
+    <Loader />
+  ) : (
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<h1>Login</h1>} />
-        <Route path="/register" element={<h1>Registro</h1>} />
+        {/* Ruta principal (Home) */}
+        <Route
+          path="/"
+          element={
+            <Suspense fallback={<Loader />}>
+              <MainLayout>
+                <Home />
+              </MainLayout>
+            </Suspense>
+          }
+        />
+
+        {/* Aquí puedes mapear otras rutas y envolverlas en MainLayout */}
+        {routes.map(({ path, component: Component }, index) => (
+          <Route
+            key={index}
+            path={path}
+            element={
+              <Suspense fallback={<Loader />}>
+                <MainLayout>
+                  <Component />
+                </MainLayout>
+              </Suspense>
+            }
+          />
+        ))}
       </Routes>
-    </BrowserRouter>
+    </>
   );
-};
+}
 
 export default App;
-
