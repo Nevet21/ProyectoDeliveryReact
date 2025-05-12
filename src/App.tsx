@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import Loader from './common/Loader';
 import routes from './routes';
 import MainLayout from './layaouts/MainLayaout'; // Asegúrate de importar MainLayout
+import Register from './pages/Restaurantes/Register'
 
 // Importación perezosa de la página de inicio (Home)
 const Home = lazy(() => import('./pages/Home/Home'));
@@ -21,34 +22,44 @@ function App() {
   ) : (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <Routes>
-        {/* Ruta principal (Home) */}
-        <Route
-          path="/"
-          element={
-            <Suspense fallback={<Loader />}>
-              <MainLayout>
-                <Home />
-              </MainLayout>
-            </Suspense>
-          }
-        />
+   <Routes>
+  <Route
+    path="/"
+    element={
+      <Suspense fallback={<Loader />}>
+        <MainLayout>
+          <Home />
+        </MainLayout>
+      </Suspense>
+    }
+  />
 
-        {/* Aquí puedes mapear otras rutas y envolverlas en MainLayout */}
-        {routes.map(({ path, component: Component }, index) => (
-          <Route
-            key={index}
-            path={path}
-            element={
-              <Suspense fallback={<Loader />}>
-                <MainLayout>
-                  <Component />
-                </MainLayout>
-              </Suspense>
-            }
-          />
-        ))}
-      </Routes>
+  {routes.map(({ path, component: Component }, index) => (
+    <Route
+      key={index}
+      path={path}
+      element={
+        <Suspense fallback={<Loader />}>
+          <MainLayout>
+            <Component />
+          </MainLayout>
+        </Suspense>
+      }
+    />
+  ))}
+
+  <Route
+    path="/registrar-restaurante"
+    element={
+      <Suspense fallback={<Loader />}>
+        <MainLayout>
+          <Register />
+        </MainLayout>
+      </Suspense>
+    }
+  />
+</Routes>
+
     </>
   );
 }

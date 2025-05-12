@@ -1,57 +1,144 @@
-import React from "react";
+import React, { useState } from 'react';
+import type { Restaurante } from "../../models/Restaurante";
 
-const Register = () => {
+const Register: React.FC = () => {
+  const [restaurant, setRestaurant] = useState<Restaurante>({
+    name: '',
+    address: '',
+    phone: '',
+    email: '',
+  });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [successMessage, setSuccessMessage] = useState<string>('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRestaurant({
+      ...restaurant,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const validate = (): boolean => {
+    const newErrors: { [key: string]: string } = {};
+    if (!restaurant.name?.trim()) {
+      newErrors.name = 'El nombre es obligatorio';
+    }
+    if (!restaurant.address?.trim()) {
+      newErrors.address = 'La dirección es obligatoria';
+    }
+    if (!restaurant.phone?.trim()) {
+      newErrors.phone = 'El teléfono es obligatorio';
+    } else if (restaurant.phone.trim().length < 7) {
+      newErrors.phone = 'El teléfono debe tener al menos 7 caracteres';
+    }
+    if (!restaurant.email?.trim()) {
+      newErrors.email = 'El correo electrónico es obligatorio';
+    } else {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(restaurant.email)) {
+        newErrors.email = 'El correo electrónico no es válido';
+      }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccessMessage('');
+    if (!validate()) return;
+
+    try {
+      console.log("Datos enviados:", restaurant);
+
+      const response = await fetch('http://127.0.0.1:5000/restaurants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...restaurant, created_at: new Date().toISOString() }),
+      });
+      if (response.ok) {
+        setSuccessMessage('¡Restaurante registrado con éxito!');
+        setRestaurant({ name: '', address: '', phone: '', email: '' });
+        setErrors({});
+      } else {
+        const errorData = await response.json();
+        alert('Error al registrar: ' + errorData.message);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud:', error);
+      alert('Error al registrar el restaurante');
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      {/* Lado izquierdo con imagen y texto promocional */}
-      <div
-        className="hidden md:flex w-1/2 bg-cover bg-center items-center justify-center"
-        style={{ backgroundImage: "url('/your-image.jpg')" }}
-      >
-        <div className="text-white px-10 max-w-md">
-          <h1 className="text-4xl font-bold mb-4">0% TARIFAS POR 30 DÍAS</h1>
-          <p className="mb-4">
-            Aplica un 20% de descuento en tu menú y <strong>no pagues por el uso de la plataforma</strong> en tus primeros 30 días.
-          </p>
-          <p className="text-xl font-semibold">Únete a Rappi y accede a miles de usuarios cerca de ti</p>
-          <p className="mt-2 text-sm">¡Es por tiempo limitado!</p>
-          <a href="#" className="mt-4 block font-semibold text-white underline">
-            ¿Ya eres aliado y quieres registrar otras marcas o sucursales? Haz clic aquí &gt;&gt;
-          </a>
-        </div>
-      </div>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h2 className="text-2xl font-bold mb-6 text-center">Registro de Restaurante</h2>
 
-      {/* Lado derecho con el formulario */}
-      <div className="w-full md:w-1/2 flex items-center justify-center bg-white">
-        <form className="w-full max-w-md p-8 space-y-6 shadow-md rounded-md bg-white">
-          <h2 className="text-2xl font-bold text-gray-800 text-center">Registra tu restaurante</h2>
-          <p className="text-center text-sm text-gray-500">
-            ¿Ya comenzaste tu registro? <a href="#" className="text-green-600 font-semibold underline">continúa aquí.</a>
-          </p>
-          <div className="grid grid-cols-2 gap-4">
-            <input type="text" placeholder="Tu nombre" className="border p-2 rounded" />
-            <input type="text" placeholder="Tu apellido" className="border p-2 rounded" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <select className="border p-2 rounded">
-              <option>Colombia (+57)</option>
-              <option>México (+52)</option>
-              <option>Perú (+51)</option>
-            </select>
-            <input type="text" placeholder="Tu móvil" className="border p-2 rounded" />
-          </div>
-          <input type="email" placeholder="E-mail del responsable" className="w-full border p-2 rounded" />
-          <input type="password" placeholder="Crea una contraseña" className="w-full border p-2 rounded" />
-          <button type="submit" className="w-full bg-gray-300 text-gray-700 font-bold py-2 rounded cursor-not-allowed" disabled>
-            Registrar restaurante
-          </button>
-          <a href="#" className="block text-center text-green-600 font-semibold mt-4">
-            Mi negocio no es un restaurante
-          </a>
-        </form>
-      </div>
+        <div className="mb-4">
+          <label htmlFor="name" className="block text-gray-700">Nombre:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={restaurant.name}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="address" className="block text-gray-700">Dirección:</label>
+          <input
+            type="text"
+            id="address"
+            name="address"
+            value={restaurant.address}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+          {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="phone" className="block text-gray-700">Teléfono:</label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            value={restaurant.phone}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+          {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="email" className="block text-gray-700">Correo Electrónico:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={restaurant.email}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
+          {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-yellow-500 text-black py-2 rounded-lg hover:bg-yellow-600 transition-colors"
+        >
+          Registrar
+        </button>
+
+        {successMessage && <p className="text-green-600 text-center mt-4">{successMessage}</p>}
+      </form>
     </div>
   );
 };
 
 export default Register;
+
