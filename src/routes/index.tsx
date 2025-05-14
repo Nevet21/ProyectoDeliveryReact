@@ -7,6 +7,7 @@ const Footer = lazy(() => import('../components/Footer'));
 const SearchBar = lazy(() => import('../components/SearchBar'));
 const ServiceCard = lazy(() => import('../components/ServiceCard'));
 const SideBar = lazy(() => import('../components/SideBar'));
+const Carrito = lazy(() => import('../pages/Cart'));
 
 // Definición de las rutas
 const routes = [
@@ -39,6 +40,11 @@ const routes = [
     path: '/sidebar',
     title: 'Side Bar',
     component: SideBar,
+  },
+  {
+    path: '/cart',
+    title: 'Carrito',
+    component: Carrito,
   },
   
 ];
