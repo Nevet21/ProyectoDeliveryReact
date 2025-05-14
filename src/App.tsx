@@ -1,14 +1,13 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
-
+import React, { lazy, Suspense, useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Loader from './common/Loader';
+import { Toaster } from 'react-hot-toast';
 import routes from './routes';
-import MainLayout from './layaouts/MainLayaout'; // Asegúrate de importar MainLayout
-import Register from './pages/Restaurantes/Register'
 
-// Importación perezosa de la página de inicio (Home)
+// Cargar componentes de forma perezosa
 const Home = lazy(() => import('./pages/Home/Home'));
+const Register = lazy(() => import('./pages/Restaurantes/Register'));
+// Asumir que `routes` está definido en algún lugar de tu código
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -22,46 +21,27 @@ function App() {
   ) : (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-   <Routes>
-  <Route
-    path="/"
-    element={
       <Suspense fallback={<Loader />}>
-        <MainLayout>
-          <Home />
-        </MainLayout>
+        <Routes>
+          {/* Ruta principal */}
+          <Route path="/" element={<Home />} />
+
+          {/* Rutas dinámicas */}
+          {routes.map(({ path, component: Component }, index) => (
+            <Route
+              key={index}
+              path={path}
+              element={<Component />}
+            />
+          ))}
+
+          {/* Ruta para registrar restaurante */}
+          <Route path="/registrar-restaurante" element={<Register />} />
+        </Routes>
       </Suspense>
-    }
-  />
-
-  {routes.map(({ path, component: Component }, index) => (
-    <Route
-      key={index}
-      path={path}
-      element={
-        <Suspense fallback={<Loader />}>
-          <MainLayout>
-            <Component />
-          </MainLayout>
-        </Suspense>
-      }
-    />
-  ))}
-
-  <Route
-    path="/registrar-restaurante"
-    element={
-      <Suspense fallback={<Loader />}>
-        <MainLayout>
-          <Register />
-        </MainLayout>
-      </Suspense>
-    }
-  />
-</Routes>
-
     </>
   );
 }
 
 export default App;
+
