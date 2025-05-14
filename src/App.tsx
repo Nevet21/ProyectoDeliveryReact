@@ -1,11 +1,11 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-
 import Loader from './common/Loader';
 import routes from './routes';
 import MainLayout from './layaouts/MainLayaout'; // Asegúrate de importar MainLayout
 import Register from './pages/Restaurantes/Register'
+import Login from './pages/Auth/Login';
 
 // Importación perezosa de la página de inicio (Home)
 const Home = lazy(() => import('./pages/Home/Home'));
@@ -41,7 +41,7 @@ function App() {
       element={
         <Suspense fallback={<Loader />}>
           <MainLayout>
-            <Component />
+            <Component children={undefined} title={''} description={''} />
           </MainLayout>
         </Suspense>
       }
@@ -58,8 +58,17 @@ function App() {
       </Suspense>
     }
   />
-</Routes>
-
+ <Route
+          path="/login"
+          element={
+            <Suspense fallback={<Loader />}>
+              <MainLayout>
+                <Login />
+              </MainLayout>
+            </Suspense>
+          }
+        />
+      </Routes>
     </>
   );
 }
