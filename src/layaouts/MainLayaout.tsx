@@ -1,8 +1,8 @@
 import React from "react";
-import Sidebar from "../components/SideBar";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
-import SearchBar from "../components/SearchBar"; // Importamos el componente SearchBar
+import Sidebar from "../components/Comp_Pag_Prin/SideBar";
+import Footer from "../components/Comp_Pag_Prin/Footer";
+import Header from "../components/Comp_Pag_Prin/Header";
+import SearchBar from "../components/Comp_Pag_Prin/SearchBar"; // Importamos el componente SearchBar
 
 interface MainLayoutProps {
   children: React.ReactNode;
