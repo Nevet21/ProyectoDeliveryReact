@@ -1,13 +1,15 @@
 import { lazy } from 'react';
 
 // Importaciones perezosas de los componentes
-const MainLayout = lazy(() => import('../layaouts/MainLayaout'));
-const Header = lazy(() => import('../components/Header'));
-const Footer = lazy(() => import('../components/Footer'));
-const SearchBar = lazy(() => import('../components/SearchBar'));
-const ServiceCard = lazy(() => import('../components/ServiceCard'));
-const SideBar = lazy(() => import('../components/SideBar'));
-const Carrito = lazy(() => import('../pages/Cart'));
+const MainLayout = lazy(() => import('../components/MainLayaout'));
+const Header = lazy(() => import('../components/Comp_Pag_Prin/Header'));
+const Footer = lazy(() => import('../components/Comp_Pag_Prin/Footer'));
+const SearchBar = lazy(() => import('../components/Comp_Pag_Prin/SearchBar'));
+const ServiceCard = lazy(() => import('../components/Comp_Pag_Prin/ServiceCard'));
+const SideBar = lazy(() => import('../components/Comp_Pag_Prin/SideBar'));
+const Carrito = lazy(() => import('../pages/Cart/Cart'));
+const AdminLayout = lazy(() => import('../components/AdminLayout'));
+
 
 // Definición de las rutas
 const routes = [
@@ -46,6 +48,11 @@ const routes = [
     title: 'Carrito',
     component: Carrito,
   },
+  {
+    path: '/admin',
+    title: 'Admin',
+    component: AdminLayout,
+  }
   
 ];
 

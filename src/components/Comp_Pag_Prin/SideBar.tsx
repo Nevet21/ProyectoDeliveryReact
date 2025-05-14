@@ -70,6 +70,15 @@ const Sidebar: React.FC = () => {
           <div className="mt-6 bg-purple-500 rounded-md text-center py-3 text-white">
             <span className="font-semibold">¡Descubre nuestras promociones!</span>
           </div>
+
+          {/* Admin */}
+          <div className="mt-6 bg-blue-600 rounded-md text-center py-3 text-white hover:rounded-md cursor-pointer">
+                        <Link
+              to="/admin"              
+            >
+              Adminitrador
+            </Link>
+          </div>
         </div>
       </div>
     </div>

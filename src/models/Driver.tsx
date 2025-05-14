@@ -5,3 +5,4 @@ export interface Customer {
     email?: string;
     status?: string;
   }
+

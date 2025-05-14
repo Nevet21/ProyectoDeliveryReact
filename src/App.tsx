@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Loader from './common/Loader';
 import routes from './routes';
-import MainLayout from './layaouts/MainLayaout'; // Asegúrate de importar MainLayout
+import MainLayout from './components/MainLayaout'; 
 import Register from './pages/Restaurantes/Register'
 import Login from './pages/Auth/Login';
 

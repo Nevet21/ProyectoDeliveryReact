@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Restaurante } from "../../models/Restaurante";
-import MainLayout from '../../layaouts/MainLayaout';  // Asegúrate de tener la ruta correcta
+import MainLayout from '../../components/MainLayaout';  // Asegúrate de tener la ruta correcta
 
 const Register: React.FC = () => {
   const [restaurant, setRestaurant] = useState<Restaurante>({
