@@ -1,4 +1,5 @@
 import React, { useEffect, useState, Suspense } from 'react';
+import { Link } from 'react-router-dom';
 import axiosInstance from '../../axiosInstance';
 import Modal from './Comp_pag_Admin/Modal';
 
@@ -73,108 +74,112 @@ const AdminLayout: React.FC = () => {
   };
 
   const formatearFecha = (fechaIso: string) => {
-  if (!fechaIso) return '—';
-  const fecha = new Date(fechaIso);
-  return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1)
-    .toString()
-    .padStart(2, '0')}/${fecha.getFullYear()} ${fecha
-    .getHours()
-    .toString()
-    .padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
-};
-
-
+    if (!fechaIso) return '—';
+    const fecha = new Date(fechaIso);
+    return `${fecha.getDate().toString().padStart(2, '0')}/${
+      (fecha.getMonth() + 1).toString().padStart(2, '0')}/${fecha.getFullYear()} ${fecha
+      .getHours()
+      .toString()
+      .padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+  };
 
   return (
-  <div className="p-6 bg-gray-100 min-h-screen">
-    <h1 className="text-2xl font-bold mb-4">Panel de Administración</h1>
-
-    <div className="flex gap-4 mb-6">
-      {Object.entries(categorias).map(([key, label]) => (
-        <button
-          key={key}
-          onClick={() => {
-            setActiveTab(key as Categoria);
-            setModalOpen(false);
-          }}
-          className={`px-4 py-2 rounded ${
-            activeTab === key ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300'
-          }`}
-        >
-          {label}
-        </button>
-      ))}
-    </div>
-
-    <div className="bg-white p-4 rounded shadow overflow-x-auto">
-      <div className="flex justify-between mb-4">
-        <h2 className="text-xl font-semibold">{categorias[activeTab]}</h2>
-        <button
-          onClick={handleAgregar}
-          className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-        >
-          Agregar {categorias[activeTab].slice(0, -1)}
-        </button>
+    <div className="p-6 bg-gray-100 min-h-screen">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Panel de Administración</h1>
+        {/* Botón de navegación a Inicio */}
+        <Link to="/" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+          Inicio
+        </Link>
       </div>
 
-      <table className="min-w-full border text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            {Object.keys(data[0] || {}).map((key) => (
-              <th key={key} className="border px-4 py-2 text-left capitalize">
-                {key.replace(/_/g, ' ')}
-              </th>
-            ))}
-            <th className="border px-4 py-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id ?? Math.random()} className="hover:bg-gray-50">
-              {Object.keys(item).map((key) => (
-                <td key={key} className="border px-4 py-2">
-                  {key === 'created_at'
-                    ? formatearFecha(item[key])
-                    : typeof item[key] === 'object' && item[key] !== null
-                    ? JSON.stringify(item[key])
-                    : item[key]}
-                </td>
+      <div className="flex gap-4 mb-6">
+        {Object.entries(categorias).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => {
+              setActiveTab(key as Categoria);
+              setModalOpen(false);
+            }}
+            className={`px-4 py-2 rounded ${
+              activeTab === key
+                ? 'bg-blue-600 text-white'
+                : 'bg-white border border-gray-300'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-white p-4 rounded shadow overflow-x-auto">
+        <div className="flex justify-between mb-4">
+          <h2 className="text-xl font-semibold">{categorias[activeTab]}</h2>
+          <button
+            onClick={handleAgregar}
+            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+          >
+            Agregar {categorias[activeTab].slice(0, -1)}
+          </button>
+        </div>
+
+        <table className="min-w-full border text-sm">
+          <thead className="bg-gray-100">
+            <tr>
+              {Object.keys(data[0] || {}).map((key) => (
+                <th key={key} className="border px-4 py-2 text-left capitalize">
+                  {key.replace(/_/g, ' ')}
+                </th>
               ))}
-              <td className="border px-4 py-2 whitespace-nowrap">
-                <button
-                  onClick={() => handleEdit(item)}
-                  className="text-blue-600 mr-2"
-                >
-                  Editar
-                </button>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="text-red-600"
-                >
-                  Eliminar
-                </button>
-              </td>
+              <th className="border px-4 py-2">Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((item) => (
+              <tr key={item.id ?? Math.random()} className="hover:bg-gray-50">
+                {Object.keys(item).map((key) => (
+                  <td key={key} className="border px-4 py-2">
+                    {key === 'created_at'
+                      ? formatearFecha(item[key])
+                      : typeof item[key] === 'object' && item[key] !== null
+                      ? JSON.stringify(item[key])
+                      : item[key]}
+                  </td>
+                ))}
+                <td className="border px-4 py-2 whitespace-nowrap">
+                  <button
+                    onClick={() => handleEdit(item)}
+                    className="text-blue-600 mr-2"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(item.id)}
+                    className="text-red-600"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+        <Suspense fallback={<p>Cargando formulario...</p>}>
+          <FormComponent
+            data={modalData}
+            isEdit={editMode}
+            onSuccess={() => {
+              fetchData();
+              setModalOpen(false);
+            }}
+          />
+        </Suspense>
+      </Modal>
     </div>
-
-    <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
-      <Suspense fallback={<p>Cargando formulario...</p>}>
-        <FormComponent
-          data={modalData}
-          isEdit={editMode}
-          onSuccess={() => {
-            fetchData();
-            setModalOpen(false);
-          }}
-        />
-      </Suspense>
-    </Modal>
-  </div>
-);
-
+  );
 };
 
 export default AdminLayout;
