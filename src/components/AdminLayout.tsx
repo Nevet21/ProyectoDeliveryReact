@@ -1,133 +1,180 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, Suspense } from 'react';
+import axiosInstance from '../../axiosInstance';
+import Modal from './Comp_pag_Admin/Modal';
 
-interface Item {
-  id: number;
-  nombre: string;
-}
+const FormComponents: Record<string, React.LazyExoticComponent<React.FC<any>>> = {
+  restaurantes: React.lazy(() => import('../components/Comp_pag_Admin/Restaurante')),
+  comidas: React.lazy(() => import('../components/Comp_pag_Admin/Comida')),
+  motos: React.lazy(() => import('../components/Comp_pag_Admin/Motorcycle_tot')),
+  conductores: React.lazy(() => import('../components/Comp_pag_Admin/Driver_tot')),
+  pedidos: React.lazy(() => import('../components/Comp_pag_Admin/Pedido')),
+};
 
-type Categoria = "restaurantes" | "comidas" | "motos" | "conductores" | "pedidos";
+type Categoria = keyof typeof FormComponents;
+type DataType = Record<string, any>;
 
 const categorias: Record<Categoria, string> = {
-  restaurantes: "Restaurantes",
-  comidas: "Comidas",
-  motos: "Motos",
-  conductores: "Conductores",
-  pedidos: "Pedidos",
+  restaurantes: 'Restaurantes',
+  comidas: 'Comidas',
+  motos: 'Motos',
+  conductores: 'Conductores',
+  pedidos: 'Pedidos',
+};
+
+const endpoints: Record<Categoria, string> = {
+  restaurantes: '/restaurants',
+  comidas: '/products',
+  motos: '/motorcycles',
+  conductores: '/drivers',
+  pedidos: '/orders',
 };
 
 const AdminLayout: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Categoria>("restaurantes");
+  const [activeTab, setActiveTab] = useState<Categoria>('restaurantes');
+  const [data, setData] = useState<DataType[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalData, setModalData] = useState<DataType | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
-  const [data, setData] = useState<Record<Categoria, Item[]>>({
-    restaurantes: [{ id: 1, nombre: "Pizza Loca" }],
-    comidas: [{ id: 1, nombre: "Hamburguesa" }],
-    motos: [{ id: 1, nombre: "Yamaha R3" }],
-    conductores: [{ id: 1, nombre: "Juan Pérez" }],
-    pedidos: [{ id: 1, nombre: "Pedido #1001" }],
-  });
+  const FormComponent = FormComponents[activeTab];
 
-  const [editId, setEditId] = useState<number | null>(null);
-  const [editNombre, setEditNombre] = useState<string>("");
-
-  const handleDelete = (categoria: Categoria, id: number) => {
-    setData((prev) => ({
-      ...prev,
-      [categoria]: prev[categoria].filter((item) => item.id !== id),
-    }));
+  const fetchData = async () => {
+    try {
+      const res = await axiosInstance.get(endpoints[activeTab]);
+      setData(res.data);
+    } catch (e) {
+      console.error('Error fetching data:', e);
+    }
   };
 
-  const handleEdit = (id: number, nombre: string) => {
-    setEditId(id);
-    setEditNombre(nombre);
+  useEffect(() => {
+    fetchData();
+  }, [activeTab]);
+
+  const handleDelete = async (id: number) => {
+    try {
+      await axiosInstance.delete(`${endpoints[activeTab]}/${id}`);
+      fetchData();
+    } catch (e) {
+      console.error('Error deleting item:', e);
+    }
   };
 
-  const handleSave = (categoria: Categoria) => {
-    setData((prev) => ({
-      ...prev,
-      [categoria]: prev[categoria].map((item) =>
-        item.id === editId ? { ...item, nombre: editNombre } : item
-      ),
-    }));
-    setEditId(null);
-    setEditNombre("");
+  const handleEdit = (item: DataType) => {
+    setEditMode(true);
+    setModalData(item);
+    setModalOpen(true);
   };
+
+  const handleAgregar = () => {
+    setEditMode(false);
+    setModalData(null);
+    setModalOpen(true);
+  };
+
+  const formatearFecha = (fechaIso: string) => {
+  if (!fechaIso) return '—';
+  const fecha = new Date(fechaIso);
+  return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}/${fecha.getFullYear()} ${fecha
+    .getHours()
+    .toString()
+    .padStart(2, '0')}:${fecha.getMinutes().toString().padStart(2, '0')}`;
+};
+
+
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Panel de Administración</h1>
+  <div className="p-6 bg-gray-100 min-h-screen">
+    <h1 className="text-2xl font-bold mb-4">Panel de Administración</h1>
 
-      {/* Navegación entre categorías */}
-      <div className="flex gap-4 mb-6">
-        {Object.entries(categorias).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setActiveTab(key as Categoria)}
-            className={`px-4 py-2 rounded ${
-              activeTab === key
-                ? "bg-blue-600 text-white"
-                : "bg-white border border-gray-300"
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+    <div className="flex gap-4 mb-6">
+      {Object.entries(categorias).map(([key, label]) => (
+        <button
+          key={key}
+          onClick={() => {
+            setActiveTab(key as Categoria);
+            setModalOpen(false);
+          }}
+          className={`px-4 py-2 rounded ${
+            activeTab === key ? 'bg-blue-600 text-white' : 'bg-white border border-gray-300'
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+
+    <div className="bg-white p-4 rounded shadow overflow-x-auto">
+      <div className="flex justify-between mb-4">
+        <h2 className="text-xl font-semibold">{categorias[activeTab]}</h2>
+        <button
+          onClick={handleAgregar}
+          className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+        >
+          Agregar {categorias[activeTab].slice(0, -1)}
+        </button>
       </div>
 
-      {/* Lista de elementos */}
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">{categorias[activeTab]}</h2>
-        <ul>
-          {data[activeTab].map((item) => (
-            <li
-              key={item.id}
-              className="flex justify-between items-center py-2 border-b"
-            >
-              {editId === item.id ? (
-                <input
-                  type="text"
-                  value={editNombre}
-                  onChange={(e) => setEditNombre(e.target.value)}
-                  className="border p-1 rounded flex-1 mr-2"
-                />
-              ) : (
-                <span className="flex-1">{item.nombre}</span>
-              )}
-
-              <div className="flex gap-2">
-                {editId === item.id ? (
-                  <button
-                    onClick={() => handleSave(activeTab)}
-                    className="text-green-600"
-                  >
-                    Guardar
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleEdit(item.id, item.nombre)}
-                    className="text-blue-600"
-                  >
-                    Editar
-                  </button>
-                )}
+      <table className="min-w-full border text-sm">
+        <thead className="bg-gray-100">
+          <tr>
+            {Object.keys(data[0] || {}).map((key) => (
+              <th key={key} className="border px-4 py-2 text-left capitalize">
+                {key.replace(/_/g, ' ')}
+              </th>
+            ))}
+            <th className="border px-4 py-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => (
+            <tr key={item.id ?? Math.random()} className="hover:bg-gray-50">
+              {Object.keys(item).map((key) => (
+                <td key={key} className="border px-4 py-2">
+                  {key === 'created_at'
+                    ? formatearFecha(item[key])
+                    : typeof item[key] === 'object' && item[key] !== null
+                    ? JSON.stringify(item[key])
+                    : item[key]}
+                </td>
+              ))}
+              <td className="border px-4 py-2 whitespace-nowrap">
                 <button
-                  onClick={() => handleDelete(activeTab, item.id)}
+                  onClick={() => handleEdit(item)}
+                  className="text-blue-600 mr-2"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => handleDelete(item.id)}
                   className="text-red-600"
                 >
                   Eliminar
                 </button>
-                <button
-                  onClick={() => handleDelete(activeTab, item.id)}
-                  className="text-yellow-600"
-                >
-                  agregar
-                </button>
-              </div>
-            </li>
+              </td>
+            </tr>
           ))}
-        </ul>
-      </div>
+        </tbody>
+      </table>
     </div>
-  );
+
+    <Modal isOpen={modalOpen} onClose={() => setModalOpen(false)}>
+      <Suspense fallback={<p>Cargando formulario...</p>}>
+        <FormComponent
+          data={modalData}
+          isEdit={editMode}
+          onSuccess={() => {
+            fetchData();
+            setModalOpen(false);
+          }}
+        />
+      </Suspense>
+    </Modal>
+  </div>
+);
+
 };
 
 export default AdminLayout;

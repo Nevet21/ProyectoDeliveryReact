@@ -7,17 +7,21 @@ interface Props {
   onSuccess: () => void;
 }
 
-const Motorcycle_tot: React.FC<Props> = ({ data, isEdit, onSuccess }) => {
-  const [form, setForm] = useState<{
-  license_plate: string;
-  brand: string;
-  year: string;
-  status: string;
-}>(data || {
-  license_plate: '',
-  brand: '',
-  year: '',
-  status: ''
+const Restaurante: React.FC<Props> = ({ data, isEdit, onSuccess }) => {
+const [form, setForm] = useState<{
+  id: string;
+  name: string;
+  address: string;
+  phone: string;
+  email: string;
+  created_at: string;
+}>({
+  id: '',
+  name: '',
+  address: '',
+  phone: '',
+  email: '',
+  created_at: '',
 });
 
 
@@ -28,19 +32,19 @@ const Motorcycle_tot: React.FC<Props> = ({ data, isEdit, onSuccess }) => {
   const handleSubmit = async () => {
     try {
       if (isEdit) {
-        await axiosInstance.put(`/motorcycles/${data.id}`, form);
+        await axiosInstance.put(`/restaurants/${data.id}`, form);
       } else {
-        await axiosInstance.post('/motorcycles', form);
+        await axiosInstance.post('/restaurants', form);
       }
       onSuccess();
     } catch (e) {
-      console.error('Error al guardar moto', e);
+      console.error('Error al guardar restaurante', e);
     }
   };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">{isEdit ? 'Editar Moto' : 'Agregar Moto'}</h2>
+      <h2 className="text-xl font-semibold mb-4">{isEdit ? 'Editar Restaurante' : 'Agregar Restaurante'}</h2>
       {Object.keys(form).map((key) => (
         <div key={key} className="mb-2">
           <label className="block capitalize">{key}</label>
@@ -59,4 +63,4 @@ onChange={(e) => handleChange(key, e.target.value)}
   );
 };
 
-export default Motorcycle_tot;
+export default Restaurante;
