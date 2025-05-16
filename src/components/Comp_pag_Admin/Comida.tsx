@@ -7,19 +7,13 @@ interface Props {
   onSuccess: () => void;
 }
 
-const Motorcycle_tot: React.FC<Props> = ({ data, isEdit, onSuccess }) => {
-  const [form, setForm] = useState<{
-  license_plate: string;
-  brand: string;
-  year: string;
-  status: string;
-}>(data || {
-  license_plate: '',
-  brand: '',
-  year: '',
-  status: ''
-});
-
+const Comida: React.FC<Props> = ({ data, isEdit, onSuccess }) => {
+const [form, setForm] = useState<{
+  name: string;
+  description: string;
+  price: number | string;
+  category: string;
+}>(data || { name: '', description: '', price: '', category: '' });
 
   const handleChange = (key: string, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -28,19 +22,19 @@ const Motorcycle_tot: React.FC<Props> = ({ data, isEdit, onSuccess }) => {
   const handleSubmit = async () => {
     try {
       if (isEdit) {
-        await axiosInstance.put(`/motorcycles/${data.id}`, form);
+        await axiosInstance.put(`/products/${data.id}`, form);
       } else {
-        await axiosInstance.post('/motorcycles', form);
+        await axiosInstance.post('/products', form);
       }
       onSuccess();
     } catch (e) {
-      console.error('Error al guardar moto', e);
+      console.error('Error al guardar comida', e);
     }
   };
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">{isEdit ? 'Editar Moto' : 'Agregar Moto'}</h2>
+      <h2 className="text-xl font-semibold mb-4">{isEdit ? 'Editar Comida' : 'Agregar Comida'}</h2>
       {Object.keys(form).map((key) => (
         <div key={key} className="mb-2">
           <label className="block capitalize">{key}</label>
@@ -59,4 +53,4 @@ onChange={(e) => handleChange(key, e.target.value)}
   );
 };
 
-export default Motorcycle_tot;
+export default Comida;
