@@ -10,18 +10,21 @@ const SideBar = lazy(() => import('../components/Comp_Pag_Prin/SideBar'));
 const Carrito = lazy(() => import('../pages/Cart/Cart'));
 const AdminLayout = lazy(() => import('../components/AdminLayout'));
 
+// Importaciones perezosas de los componentes de página
+const Home = lazy(() => import('../pages/Home/Home'));
+const Register = lazy(() => import('../pages/Restaurantes/Register'));
 
 // Definición de las rutas
 const routes = [
   {
     path: '/',
-    title: 'Main Layout',
-    component: MainLayout,
+    title: 'Inicio',
+    component: Home,
   },
   {
-    path: '/header',
-    title: 'Header',
-    component: Header,
+    path: '/registrar-restaurante',
+    title: 'Registrar Restaurante',
+    component: Register,
   },
   {
     path: '/footer',

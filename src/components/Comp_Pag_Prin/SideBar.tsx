@@ -1,11 +1,17 @@
 import React, { useState } from "react";
 import { FaBars, FaRegHandshake, FaHamburger, FaShoppingCart, FaPlus } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleSidebar = () => setIsOpen(!isOpen);
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsOpen(false);
+  };
 
   return (
     <div>
@@ -48,9 +54,8 @@ const Sidebar: React.FC = () => {
             >
               Registro
             </Link>
-          </div>
+      </div>
 
-          {/* Secciones con iconos */}
           <div className="space-y-4">
             <div className="flex items-center space-x-3 hover:bg-blue-500 hover:rounded-md p-2 transition cursor-pointer">
               <FaHamburger className="text-xl" />
@@ -64,11 +69,23 @@ const Sidebar: React.FC = () => {
               <FaPlus className="text-xl" />
               <span>Express</span>
             </div>
-          </div>
+            <div
+              className="flex items-center space-x-3 hover:bg-blue-500 hover:rounded-md p-2 transition cursor-pointer"
+              onClick={() => handleNavigation("/registrar-restaurante")}
+            >
+              <FaPlus className="text-xl" />
+              <span>Registrar Restaurante</span>
 
-          {/* Promociones */}
-          <div className="mt-6 bg-purple-500 rounded-md text-center py-3 text-white">
-            <span className="font-semibold">¡Descubre nuestras promociones!</span>
+            </div>
+            <div
+              className="flex items-center space-x-3 hover:bg-blue-500 hover:rounded-md p-2 transition cursor-pointer"
+              onClick={() => handleNavigation("/Ingresar-restaurante")}
+            >
+              <FaPlus className="text-xl" />
+              <span>ingresar Restaurante</span>
+
+            </div>
+            
           </div>
 
           {/* Admin */}

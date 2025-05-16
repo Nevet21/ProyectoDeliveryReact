@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Restaurante } from "../../models/Restaurante";
 import MainLayout from '../../components/MainLayaout';  // Asegúrate de tener la ruta correcta
+import { createRestaurant } from "../../Services/restauranteService"; // Importación del servicio
 
 const Register: React.FC = () => {
   const [restaurant, setRestaurant] = useState<Restaurante>({
@@ -9,6 +10,7 @@ const Register: React.FC = () => {
     phone: '',
     email: '',
   });
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -22,12 +24,8 @@ const Register: React.FC = () => {
 
   const validate = (): boolean => {
     const newErrors: { [key: string]: string } = {};
-    if (!restaurant.name?.trim()) {
-      newErrors.name = 'El nombre es obligatorio';
-    }
-    if (!restaurant.address?.trim()) {
-      newErrors.address = 'La dirección es obligatoria';
-    }
+    if (!restaurant.name?.trim()) newErrors.name = 'El nombre es obligatorio';
+    if (!restaurant.address?.trim()) newErrors.address = 'La dirección es obligatoria';
     if (!restaurant.phone?.trim()) {
       newErrors.phone = 'El teléfono es obligatorio';
     } else if (restaurant.phone.trim().length < 7) {
@@ -41,6 +39,7 @@ const Register: React.FC = () => {
         newErrors.email = 'El correo electrónico no es válido';
       }
     }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -49,28 +48,16 @@ const Register: React.FC = () => {
     e.preventDefault();
     setSuccessMessage('');
     setErrorMessage('');
-    
+
     if (!validate()) return;
 
-    try {
-      console.log("Datos enviados:", restaurant);
+    const result = await createRestaurant(restaurant);
 
-      const response = await fetch('http://127.0.0.1:5000/restaurants', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...restaurant, created_at: new Date().toISOString() }),
-      });
-      
-      if (response.ok) {
-        setSuccessMessage('Restaurante registrado con éxito!');
-        setRestaurant({ name: '', address: '', phone: '', email: '' });
-        setErrors({});
-      } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.message || 'Error al registrar el restaurante');
-      }
-    } catch (error) {
-      console.error('Error en la solicitud:', error);
+    if (result) {
+      setSuccessMessage('Restaurante registrado con éxito!');
+      setRestaurant({ name: '', address: '', phone: '', email: '' });
+      setErrors({});
+    } else {
       setErrorMessage('Error al registrar el restaurante');
     }
   };
