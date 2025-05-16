@@ -9,6 +9,7 @@ const ServiceCard = lazy(() => import('../components/Comp_Pag_Prin/ServiceCard')
 const SideBar = lazy(() => import('../components/Comp_Pag_Prin/SideBar'));
 const Carrito = lazy(() => import('../pages/Cart/Cart'));
 const AdminLayout = lazy(() => import('../components/AdminLayout'));
+const Chat = lazy(() => import('../pages/ChatBot/ChatBot'));
 
 // Importaciones perezosas de los componentes de página
 const Home = lazy(() => import('../pages/Home/Home'));
@@ -55,6 +56,11 @@ const routes = [
     path: '/admin',
     title: 'Admin',
     component: AdminLayout,
+  },
+  {
+    path: '/chat',
+    title: 'Chat',
+    component: Chat,
   }
   
 ];
