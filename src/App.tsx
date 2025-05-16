@@ -1,14 +1,14 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Loader from './common/Loader';
+import { Toaster } from 'react-hot-toast';
 import routes from './routes';
-import MainLayout from './components/MainLayaout'; 
-import Register from './pages/Restaurantes/Register'
-import Login from './pages/Auth/Login';
+import MainLayout from './components/MainLayaout'; // Ajusta la ruta si es distinta
 
-// Importación perezosa de la página de inicio (Home)
+// Cargar componentes de forma perezosa
 const Home = lazy(() => import('./pages/Home/Home'));
+const Register = lazy(() => import('./pages/Restaurantes/Register'));
+const Login = lazy(() => import('./pages/Auth/Login')); // Asegúrate que este path sea correcto
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -22,53 +22,32 @@ function App() {
   ) : (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-   <Routes>
-  <Route
-    path="/"
-    element={
       <Suspense fallback={<Loader />}>
-        <MainLayout>
-          <Home />
-        </MainLayout>
-      </Suspense>
-    }
-  />
+        <Routes>
+          {/* Ruta principal */}
+          <Route path="/" element={<Home />} />
 
-  {routes.map(({ path, component: Component }, index) => (
-    <Route
-      key={index}
-      path={path}
-      element={
-        <Suspense fallback={<Loader />}>
-          <MainLayout>
-            <Component children={undefined} title={''} description={''} />
-          </MainLayout>
-        </Suspense>
-      }
-    />
-  ))}
+          {/* Rutas dinámicas desde el arreglo de rutas */}
+          {routes.map(({ path, component: Component }, index) => (
+            <Route key={index} path={path} element={<Component />} />
+          ))}
 
-  <Route
-    path="/registrar-restaurante"
-    element={
-      <Suspense fallback={<Loader />}>
-        <MainLayout>
-          <Register />
-        </MainLayout>
+          {/* Ruta para registrar restaurante */}
+          <Route path="/registrar-restaurante" element={<Register />} />
+
+          {/* Ruta de login envuelta en MainLayout */}
+          <Route
+            path="/login"
+            element={
+              <Suspense fallback={<Loader />}>
+                <MainLayout>
+                  <Login />
+                </MainLayout>
+              </Suspense>
+            }
+          />
+        </Routes>
       </Suspense>
-    }
-  />
- <Route
-          path="/login"
-          element={
-            <Suspense fallback={<Loader />}>
-              <MainLayout>
-                <Login />
-              </MainLayout>
-            </Suspense>
-          }
-        />
-      </Routes>
     </>
   );
 }
