@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import type { Restaurante } from "../../models/Restaurante";
-<<<<<<< Updated upstream
 import MainLayout from '../../components/MainLayaout';  // Asegúrate de tener la ruta correcta
-=======
-import MainLayout from '../../layaouts/MainLayaout';
 import { createRestaurant } from "../../Services/restauranteService"; // Importación del servicio
->>>>>>> Stashed changes
+
 
 const Register: React.FC = () => {
   const [restaurant, setRestaurant] = useState<Restaurante>({
