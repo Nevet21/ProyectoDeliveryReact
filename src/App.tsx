@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect } from 'react';
+import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Loader from './common/Loader';
 import { Toaster } from 'react-hot-toast';
@@ -47,6 +47,6 @@ function App() {
       </Suspense>
     </>
   );
-}
+};
 
 export default App;

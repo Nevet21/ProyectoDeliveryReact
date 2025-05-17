@@ -15,6 +15,8 @@ const ProductPage = lazy(() => import('../pages/CRUDpage/ProductPage'));
 const RestaurantePage = lazy(() => import('../pages/CRUDpage/RestaurantePage'));
 const ShiftPage = lazy(() => import('../pages/CRUDpage/ShiftPage'));
 
+const AdminLayout = lazy(() => import('../components/AdminLayout'));
+const Chat = lazy(() => import('../pages/ChatBot/ChatBot'));
 
 // Importaciones perezosas de los componentes de página
 const Home = lazy(() => import('../pages/Home/Home'));
@@ -100,6 +102,15 @@ const routes = [
     path: '/admin',
     title: 'Panel de Administración',
     component: AdminHome,
+  },
+  {
+    title: 'Admin',
+    component: AdminLayout,
+  },
+  {
+    path: '/chat',
+    title: 'Chat',
+    component: Chat,
   }
   
 ];
