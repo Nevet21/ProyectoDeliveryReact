@@ -10,16 +10,16 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col min-h-screen">
       {/* Header */}
       <Header />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1">
         {/* Sidebar */}
         <Sidebar />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto p-4 bg-gray-50">
+        <main className="flex-1 p-4 bg-gray-50">
           {/* Barra de búsqueda */}
           <div className="mb-4">
             <SearchBar />
@@ -35,5 +35,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     </div>
   );
 };
+
 
 export default MainLayout;

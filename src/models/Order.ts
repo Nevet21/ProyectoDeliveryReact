@@ -1,7 +1,10 @@
 
 export interface Order {
-  id?: number;
-  quantity?: number;
-  total_price?: number;
-  status?: string;
+  id?: number;                 // generado por backend
+  customer_id: number;         // obligatorio
+  menu_id: number;             // obligatorio
+  motorcycle_id: number;       // obligatorio
+  quantity: number;            // obligatorio
+  total_price?: number;        // calculado por backend
+  status?: string;             // opcional (default: pending)
 }
