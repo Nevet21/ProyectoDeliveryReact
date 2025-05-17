@@ -89,21 +89,20 @@ const Sidebar: React.FC = () => {
             </div>
           </div>
 
-          {/* Admin */}
-          <div className="mt-6 bg-blue-600 rounded-md text-center py-3 text-white hover:bg-blue-700 cursor-pointer transition">
-            <Link to="/admin" className="block w-full">
-              Administrador
-          <div className="mt-6 bg-blue-600 rounded-md text-center py-3 text-white hover:rounded-md cursor-pointer">
-            <Link to="/admin">
-              Administrador
-            </Link>
-          </div>
-          {/* ChatBot */}
-          <div className="mt-6 bg-green-600 rounded-md text-center py-3 text-white hover:rounded-md cursor-pointer">
-            <Link to="/chat">
-              ChatBot
-            </Link>
-          </div>
+                {/* Admin */}
+        <div className="mt-6 bg-blue-600 rounded-md text-center py-3 text-white hover:bg-blue-700 cursor-pointer transition">
+          <Link to="/admin" className="block w-full">
+            Administrador
+          </Link>
+        </div>
+
+        {/* ChatBot */}
+        <div className="mt-6 bg-green-600 rounded-md text-center py-3 text-white hover:rounded-md cursor-pointer">
+          <Link to="/chat">
+            ChatBot
+          </Link>
+        </div>
+
 
         </div>
       </div>

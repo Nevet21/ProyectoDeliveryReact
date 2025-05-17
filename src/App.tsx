@@ -4,11 +4,10 @@ import Loader from './common/Loader';
 import { Toaster } from 'react-hot-toast';
 import routes from './routes';
 import MainLayout from './layaouts/MainLayaout'; // Ajusta la ruta si es distinta
-
-
-
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { lazy } from 'react';
 // Cargar componentes de forma perezosa
-const Home = lazy(() => import('./pages/Home/Home'));
 const Register = lazy(() => import('./pages/Restaurantes/Register'));
 const Login = lazy(() => import('./pages/Auth/Login')); // Asegúrate que este path sea correcto
 
