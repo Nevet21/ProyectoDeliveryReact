@@ -1,14 +1,15 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
-import { Route, Routes } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
+import React, { Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import Loader from './common/Loader';
+import { Toaster } from 'react-hot-toast';
 import routes from './routes';
-import MainLayout from './components/MainLayaout'; 
-import Register from './pages/Restaurantes/Register'
-import Login from './pages/Auth/Login';
-
-// Importación perezosa de la página de inicio (Home)
-const Home = lazy(() => import('./pages/Home/Home'));
+import MainLayout from './layaouts/MainLayaout'; // Ajusta la ruta si es distinta
+import { useState } from 'react';
+import { useEffect } from 'react';
+import { lazy } from 'react';
+// Cargar componentes de forma perezosa
+const Register = lazy(() => import('./pages/Restaurantes/Register'));
+const Login = lazy(() => import('./pages/Auth/Login')); // Asegúrate que este path sea correcto
 
 function App() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -22,43 +23,15 @@ function App() {
   ) : (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-   <Routes>
-  <Route
-    path="/"
-    element={
       <Suspense fallback={<Loader />}>
-        <MainLayout>
-          <Home />
-        </MainLayout>
-      </Suspense>
-    }
-  />
+          <Routes>
+        {/* Rutas dinámicas desde el arreglo de rutas */}
+        {routes.map(({ path, component: Component }, index) => (
+          <Route key={index} path={path} element={<Component />} />
+        ))}
 
-  {routes.map(({ path, component: Component }, index) => (
-    <Route
-      key={index}
-      path={path}
-      element={
-        <Suspense fallback={<Loader />}>
-          <MainLayout>
-            <Component children={undefined} title={''} description={''} />
-          </MainLayout>
-        </Suspense>
-      }
-    />
-  ))}
-
-  <Route
-    path="/registrar-restaurante"
-    element={
-      <Suspense fallback={<Loader />}>
-        <MainLayout>
-          <Register />
-        </MainLayout>
-      </Suspense>
-    }
-  />
- <Route
+        {/* Ruta de login envuelta en MainLayout */}
+        <Route
           path="/login"
           element={
             <Suspense fallback={<Loader />}>
@@ -69,8 +42,10 @@ function App() {
           }
         />
       </Routes>
+
+      </Suspense>
     </>
   );
-}
+};
 
 export default App;

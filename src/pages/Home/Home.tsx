@@ -1,8 +1,10 @@
 import React from 'react';
 import { FaTruck, FaCheckCircle, FaUtensils } from 'react-icons/fa'; // Iconos de react-icons
+import MainLayout from '../../layaouts/MainLayaout'; // Importamos MainLayout
 
 const Home: React.FC = () => {
   return (
+    <MainLayout>
       <section className="bg-yellow-500 text-white">
         <div className="container mx-auto px-4 py-16 md:py-24">
           {/* Hero Section */}
@@ -55,10 +57,12 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+    </MainLayout>
   );
 };
 
 export default Home;
+
 
 
 

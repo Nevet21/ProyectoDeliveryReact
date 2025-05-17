@@ -2,7 +2,10 @@
 import type { Restaurante } from "../models/Restaurante"; 
 
 
-const API_URL = import.meta.env.VITE_API_URL + "/restaurants" || "http://127.0.0.1:5000/restaurants";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5000";
+const API_URL = `${BASE_URL}/restaurants`;
+
+
 
 // Obtener todos los restaurantes
 export const getRestaurants = async (): Promise<Restaurante[]> => {
@@ -72,4 +75,11 @@ export const deleteRestaurant = async (id: number): Promise<boolean> => {
     console.error(error);
     return false;
   }
+};
+export const RestaurantService = {
+  getAll: getRestaurants,
+  getById: getRestaurantById,
+  create: createRestaurant,
+  update: updateRestaurant,
+  remove: deleteRestaurant,
 };
