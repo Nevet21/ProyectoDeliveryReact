@@ -1,7 +1,11 @@
-import { auth, googleProvider, githubProvider, twitterProvider } from '../Auth/firebaseConfig';
+import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider } from '../Auth/firebaseConfig';
 import { signInWithPopup, createUserWithEmailAndPassword, type AuthProvider, type UserCredential } from 'firebase/auth';
 import { useState, type JSX } from 'react';
-import { FaGoogle, FaGithub, FaTwitter } from 'react-icons/fa';
+import { FcGoogle } from 'react-icons/fc';
+import { FaGithub, FaTwitter, FaFacebook } from 'react-icons/fa';
+import { RiLockPasswordFill } from 'react-icons/ri';
+import { HiMail, HiUser } from 'react-icons/hi';
+
 
 type UserData = {
   displayName: string | null;
@@ -23,21 +27,49 @@ export default function Login(): JSX.Element {
   const handleLoginWithProvider = async (provider: AuthProvider) => {
     try {
       setLoading(true);
-      const result: UserCredential = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      
+      // Verificación de datos esenciales
+      if (!result.user.email) {
+        throw new Error("No se pudo obtener el email. Por favor usa otro método.");
+      }
+  
       setUser({ 
-        displayName: result.user.displayName || result.user.email,
-        email: result.user.email 
+        displayName: result.user.displayName || result.user.email.split('@')[0],
+        email: result.user.email,
+       
       });
-      setError(null);
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+  
+    } catch (err: any) { // Tipado específico para errores de Firebase
+      let errorMessage = "Error al autenticar";
+      
+      // Manejo de errores específicos
+      if (err.code) {
+        switch (err.code) {
+          case 'auth/account-exists-with-different-credential':
+            errorMessage = "Este email ya está registrado con otro método";
+            break;
+          case 'auth/popup-closed-by-user':
+            errorMessage = "Ventana de autenticación cerrada";
+            break;
+          case 'auth/cancelled-popup-request':
+            errorMessage = "Solicitud cancelada";
+            break;
+          case 'auth/unauthorized-domain':
+            errorMessage = "Dominio no autorizado (configura firebase)";
+            break;
+          default:
+            errorMessage = `Error: ${err.code}`;
+        }
+      } else {
+        errorMessage = err.message || "Error desconocido";
+      }
+      
       setError(errorMessage);
-      setUser(null);
     } finally {
       setLoading(false);
     }
   };
-
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -80,120 +112,107 @@ export default function Login(): JSX.Element {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          {isLoginForm ? 'Inicia sesión en tu cuenta' : 'Crea una nueva cuenta'}
-        </h2>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-blue-100 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          {/* Header con degradado */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-500 p-6 text-center">
+            <h2 className="text-2xl font-bold text-white">
+              {isLoginForm ? 'Bienvenido' : 'Crea tu cuenta'}
+            </h2>
+            <p className="text-blue-100 mt-1">
+              {isLoginForm ? 'Inicia sesión para continuar' : 'Únete a nuestra comunidad'}
+            </p>
+          </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {error && (
-            <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
-                </div>
+          <div className="p-8">
+            {error && (
+              <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r">
+                <p>{error}</p>
               </div>
-            </div>
-          )}
+            )}
 
-          {user ? (
-            <div className="text-center">
-              <p className="text-green-600 mb-4">¡Bienvenido {user.displayName}!</p>
-              <p className="text-gray-600">Has iniciado sesión como {user.email}</p>
-            </div>
-          ) : (
-            <>
-              <form className="space-y-6" onSubmit={handleFormSubmit}>
-                {!isLoginForm && (
-                  <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                      Nombre completo
-                    </label>
-                    <div className="mt-1">
+            {user ? (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">👋</span>
+                </div>
+                <h3 className="text-xl font-semibold text-gray-800">¡Hola {user.displayName}!</h3>
+                <p className="text-gray-600 mt-2">Has iniciado sesión como {user.email}</p>
+              </div>
+            ) : (
+              <>
+                <form onSubmit={handleFormSubmit} className="space-y-5">
+                  {!isLoginForm && (
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <HiUser className="h-5 w-5 text-gray-400" />
+                      </div>
                       <input
-                        id="name"
                         name="name"
                         type="text"
                         required
+                        placeholder="Nombre completo"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Correo electrónico
-                  </label>
-                  <div className="mt-1">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <HiMail className="h-5 w-5 text-gray-400" />
+                    </div>
                     <input
-                      id="email"
                       name="email"
                       type="email"
-                      autoComplete="email"
                       required
+                      placeholder="Correo electrónico"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                    Contraseña
-                  </label>
-                  <div className="mt-1">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <RiLockPasswordFill className="h-5 w-5 text-gray-400" />
+                    </div>
                     <input
-                      id="password"
                       name="password"
                       type="password"
-                      autoComplete={isLoginForm ? "current-password" : "new-password"}
                       required
                       minLength={6}
+                      placeholder="Contraseña"
                       value={formData.password}
                       onChange={handleInputChange}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                   </div>
-                </div>
 
-                {!isLoginForm && (
-                  <div>
-                    <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                      Confirmar contraseña
-                    </label>
-                    <div className="mt-1">
+                  {!isLoginForm && (
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <RiLockPasswordFill className="h-5 w-5 text-gray-400" />
+                      </div>
                       <input
-                        id="confirmPassword"
                         name="confirmPassword"
                         type="password"
-                        autoComplete="new-password"
                         required
                         minLength={6}
+                        placeholder="Confirmar contraseña"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
-                        className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
-                  </div>
-                )}
+                  )}
 
-                <div>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-indigo-500 hover:from-blue-700 hover:to-indigo-600 text-white font-medium rounded-lg shadow-md transition duration-300 flex items-center justify-center"
                   >
                     {loading ? (
                       <span className="flex items-center">
@@ -205,63 +224,61 @@ export default function Login(): JSX.Element {
                       </span>
                     ) : isLoginForm ? 'Iniciar sesión' : 'Registrarse'}
                   </button>
-                </div>
-              </form>
+                </form>
 
-              <div className="mt-6">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
+                <div className="mt-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div className="relative flex justify-center text-sm">
+                      <span className="px-2 bg-white text-gray-500">
+                        O continúa con
+                      </span>
+                    </div>
                   </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-2 bg-white text-gray-500">
-                      O continúa con
-                    </span>
-                  </div>
-                </div>
 
-                <div className="mt-6 grid grid-cols-3 gap-3">
-                  <div>
+                  <div className="mt-6 grid grid-cols-4 gap-3">
                     <button
                       onClick={() => handleLoginWithProvider(googleProvider)}
-                      className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                      className="p-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
                     >
-                      <FaGoogle className="h-5 w-5 text-red-500" />
+                      <FcGoogle className="h-6 w-6" />
                     </button>
-                  </div>
-
-                  <div>
                     <button
                       onClick={() => handleLoginWithProvider(githubProvider)}
-                      className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                      className="p-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
                     >
-                      <FaGithub className="h-5 w-5 text-gray-900" />
+                      <FaGithub className="h-6 w-6 text-gray-800" />
                     </button>
-                  </div>
-
-                  <div>
                     <button
                       onClick={() => handleLoginWithProvider(twitterProvider)}
-                      className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                      className="p-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
                     >
-                      <FaTwitter className="h-5 w-5 text-blue-400" />
+                      <FaTwitter className="h-6 w-6 text-blue-400" />
+                    </button>
+                    <button
+                      onClick={() => handleLoginWithProvider(facebookProvider)}
+                      className="p-2 bg-white rounded-lg border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    >
+                      <FaFacebook className="h-6 w-6 text-blue-600" />
                     </button>
                   </div>
                 </div>
-              </div>
 
-              <div className="mt-6 text-center">
-                <button
-                  onClick={() => setIsLoginForm(!isLoginForm)}
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
-                  {isLoginForm 
-                    ? '¿No tienes una cuenta? Regístrate' 
-                    : '¿Ya tienes una cuenta? Inicia sesión'}
-                </button>
-              </div>
-            </>
-          )}
+                <div className="mt-6 text-center">
+                  <button
+                    onClick={() => setIsLoginForm(!isLoginForm)}
+                    className="text-blue-600 hover:text-blue-500 font-medium text-sm"
+                  >
+                    {isLoginForm 
+                      ? '¿No tienes cuenta? Regístrate aquí' 
+                      : '¿Ya tienes cuenta? Inicia sesión'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
