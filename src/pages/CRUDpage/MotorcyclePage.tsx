@@ -22,8 +22,21 @@ const MotorcyclePage: React.FC = () => {
       onCreate={async (newData) => {
         await MotorcycleService.create(newData);
       }}
-      onView={(item) => navigate(`/motorcycles/${item.id}`)}
-      onEdit={(item) => navigate(`/motorcycles/${item.id}/edit`)}
+      
+      onEdit={async (item) => {
+  // Enviar todos los campos actuales o los que quieres actualizar
+  const dataToUpdate = {
+    license_plate: item.license_plate,
+    brand: item.brand,
+    year: item.year,
+    status: item.status, // o el nuevo valor que quieras poner
+  };
+
+  const updated = await MotorcycleService.update(item.id, dataToUpdate);
+  if (!updated) alert("Error al actualizar la motocicleta.");
+  else console.log("Motocicleta actualizada:", updated);
+}}
+
       onDelete={async (item) => {
         const success = await MotorcycleService.remove(item.id);
         if (!success) {

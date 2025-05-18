@@ -2,11 +2,8 @@ import React from "react";
 import CrudPage from "../../components/Comp_pag_Admin/CRUDpage";
 import { CustomerService } from "../../Services/CusstomerService";
 import type { Customer } from "../../models/Customer";
-import { useNavigate } from "react-router-dom";
 
 const CustomerPage: React.FC = () => {
-  const navigate = useNavigate();
-
   const columns = [
     { key: "name", label: "Nombre" },
     { key: "email", label: "Correo Electrónico" },
@@ -21,8 +18,22 @@ const CustomerPage: React.FC = () => {
       onCreate={async (newData) => {
         await CustomerService.create(newData);
       }}
-      onView={(item) => navigate(`/customers/${item.id}`)}
-      onEdit={(item) => navigate(`/customers/${item.id}/edit`)}
+      onView={async (item) => {
+        const customer = await CustomerService.getById(item.id);
+        if (!customer) alert("Cliente no encontrado");
+        else console.log("Cliente visto:", customer);
+      }}
+      onEdit={async (item) => {
+        // Envía todos los campos requeridos por el backend
+        const dataToUpdate = {
+          name: item.name,
+          email: item.email,
+          phone: item.phone,
+        };
+        const updated = await CustomerService.update(item.id, dataToUpdate);
+        if (!updated) alert("Error al actualizar el cliente.");
+        else console.log("Cliente actualizado:", updated);
+      }}
       onDelete={async (item) => {
         const success = await CustomerService.remove(item.id);
         if (!success) {

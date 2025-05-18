@@ -22,6 +22,7 @@ type Props<T> = {
   data?: Partial<T>;
   onClose: () => void;
   onSubmit: (values: T) => void;
+  readOnly?: boolean;
 };
 
 export function DynamicFormModal<T>({
@@ -31,6 +32,7 @@ export function DynamicFormModal<T>({
   data = {},
   onClose,
   onSubmit,
+  readOnly = false,
 }: Props<T>) {
   const [formValues, setFormValues] = React.useState<Partial<T>>(data);
 
@@ -41,10 +43,12 @@ export function DynamicFormModal<T>({
   if (!open) return null;
 
   const handleChange = (key: string, value: any) => {
+    if (readOnly) return; // No permitir cambios si es solo lectura
     setFormValues((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleSubmit = () => {
+    if (readOnly) return; // No enviar si es solo lectura
     onSubmit(formValues as T);
   };
 
@@ -61,10 +65,11 @@ export function DynamicFormModal<T>({
         className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Botón de cerrar (esquina superior derecha) */}
+        {/* Botón de cerrar */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition cursor-pointer"
+          aria-label="Cerrar"
         >
           <X size={20} />
         </button>
@@ -74,16 +79,22 @@ export function DynamicFormModal<T>({
         <div className="space-y-4">
           {fields.map((field) => (
             <div key={field.key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor={field.key}
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 {field.label}
               </label>
 
               {field.type === "select" ? (
                 <select
+                  id={field.key}
                   required={field.required}
                   value={(formValues as any)[field.key] ?? ""}
                   onChange={(e) => handleChange(field.key, e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                  className={`w-full border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition
+                    ${readOnly ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
+                  disabled={readOnly}
                 >
                   <option value="">Selecciona una opción</option>
                   {field.options?.map((opt) => (
@@ -94,11 +105,14 @@ export function DynamicFormModal<T>({
                 </select>
               ) : (
                 <input
+                  id={field.key}
                   type={field.type}
                   required={field.required}
                   value={(formValues as any)[field.key] ?? ""}
                   onChange={(e) => handleChange(field.key, e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition"
+                  className={`w-full border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition
+                    ${readOnly ? "bg-gray-100 cursor-not-allowed" : "border-gray-300"}`}
+                  disabled={readOnly}
                 />
               )}
             </div>
@@ -113,16 +127,17 @@ export function DynamicFormModal<T>({
             <X size={16} />
             Cancelar
           </button>
-          <button
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition cursor-pointer"
-            onClick={handleSubmit}
-          >
-            <Save size={16} />
-            Guardar
-          </button>
+          {!readOnly && (
+            <button
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition cursor-pointer"
+              onClick={handleSubmit}
+            >
+              <Save size={16} />
+              Guardar
+            </button>
+          )}
         </div>
       </motion.div>
     </div>
   );
 }
-

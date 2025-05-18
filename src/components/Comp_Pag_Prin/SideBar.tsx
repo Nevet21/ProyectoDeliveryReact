@@ -91,7 +91,7 @@ const Sidebar: React.FC = () => {
 
                 {/* Admin */}
         <div className="mt-6 bg-blue-600 rounded-md text-center py-3 text-white hover:bg-blue-700 cursor-pointer transition">
-          <Link to="/admin" className="block w-full">
+          <Link to="/Admin" className="block w-full">
             Administrador
           </Link>
         </div>

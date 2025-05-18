@@ -103,7 +103,8 @@ const routes = [
     component: AdminHome,
   },
   {
-    title: 'Admin',
+    path: '/admin2',
+    title: 'ADMIN',
     component: AdminLayout,
   },
   {

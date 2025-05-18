@@ -14,8 +14,9 @@ import {
   FaBars,
   FaTimes,
   FaSignOutAlt
+  
 } from 'react-icons/fa';
-
+import { GiKnifeFork } from "react-icons/gi";
 const menuItems = [
   { name: 'Direcciones', path: '/admin/direcciones', icon: <FaMapMarkerAlt /> },
   { name: 'Clientes', path: '/admin/clientes', icon: <FaUserAlt /> },
@@ -26,6 +27,7 @@ const menuItems = [
   { name: 'Fotos', path: '/admin/fotos', icon: <FaCamera /> },
   { name: 'Productos', path: '/admin/productos', icon: <FaHamburger /> },
   { name: 'Restaurantes', path: '/admin/restaurantes', icon: <FaUtensils /> },
+  { name: 'Menu', path: '/admin/menus', icon: < GiKnifeFork/> },
   { name: 'Turnos', path: '/admin/turnos', icon: <FaClock /> }
 ];
 

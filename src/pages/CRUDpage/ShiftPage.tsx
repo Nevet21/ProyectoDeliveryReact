@@ -2,11 +2,8 @@ import React from 'react';
 import CrudPage from "../../components/Comp_pag_Admin/CRUDpage";
 import { ShiftService } from "../../Services/ShiftService";
 import type { Shift } from "../../models/Shift";
-import { useNavigate } from "react-router-dom";
 
 const ShiftPage: React.FC = () => {
-  const navigate = useNavigate();
-
   const columns = [
     { key: 'driver_id', label: 'Conductor' },
     { key: 'motorcycle_id', label: 'Motocicleta' },
@@ -21,7 +18,6 @@ const ShiftPage: React.FC = () => {
       columns={columns}
       fetchAll={ShiftService.getAll}
       onCreate={async (newData) => {
-        // Aquí puedes convertir fechas a ISO si es necesario
         if (newData.start_time && typeof newData.start_time !== 'string') {
           newData.start_time = new Date(newData.start_time).toISOString();
         }
@@ -30,8 +26,29 @@ const ShiftPage: React.FC = () => {
         }
         await ShiftService.create(newData);
       }}
-      onView={(item) => navigate(`/shifts/${item.id}`)}
-      onEdit={(item) => navigate(`/shifts/${item.id}/edit`)}
+      onView={async (item) => {
+        const shift = await ShiftService.getById(item.id);
+        if (!shift) {
+          alert("Turno no encontrado.");
+        } else {
+          console.log("Turno:", shift);
+        }
+      }}
+      onEdit={async (item) => {
+        const dataToUpdate = {
+          driver_id: item.driver_id,
+          motorcycle_id: item.motorcycle_id,
+          start_time: typeof item.start_time === 'string' ? item.start_time : new Date(item.start_time).toISOString(),
+          end_time: typeof item.end_time === 'string' ? item.end_time : new Date(item.end_time).toISOString(),
+          status: item.status,
+        };
+        const updated = await ShiftService.update(item.id, dataToUpdate);
+        if (!updated) {
+          alert("Error al actualizar el turno.");
+        } else {
+          console.log("Turno actualizado:", updated);
+        }
+      }}
       onDelete={async (item) => {
         const success = await ShiftService.remove(item.id);
         if (!success) {
