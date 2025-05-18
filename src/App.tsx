@@ -7,6 +7,7 @@ import MainLayout from './layaouts/MainLayaout'; // Ajusta la ruta si es distint
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { lazy } from 'react';
+
 // Cargar componentes de forma perezosa
 const Register = lazy(() => import('./pages/Restaurantes/Register'));
 const Login = lazy(() => import('./pages/Auth/Login')); // Asegúrate que este path sea correcto

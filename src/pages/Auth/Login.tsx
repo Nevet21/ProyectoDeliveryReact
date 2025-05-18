@@ -5,6 +5,7 @@ import { FcGoogle } from 'react-icons/fc';
 import { FaGithub, FaTwitter, FaFacebook } from 'react-icons/fa';
 import { RiLockPasswordFill } from 'react-icons/ri';
 import { HiMail, HiUser } from 'react-icons/hi';
+import { useAuth } from '../../context/AuthContext';
 
 
 type UserData = {
@@ -13,7 +14,8 @@ type UserData = {
 };
 
 export default function Login(): JSX.Element {
-  const [user, setUser] = useState<UserData | null>(null);
+  const { setUser: setGlobalUser } = useAuth(); // Cambio clave aquí
+  const [localUser, setLocalUser] = useState<UserData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [isLoginForm, setIsLoginForm] = useState<boolean>(true);
@@ -24,26 +26,27 @@ export default function Login(): JSX.Element {
     confirmPassword: ''
   });
 
-  const handleLoginWithProvider = async (provider: AuthProvider) => {
+
+   const handleLoginWithProvider = async (provider: AuthProvider) => {
     try {
       setLoading(true);
       const result = await signInWithPopup(auth, provider);
       
-      // Verificación de datos esenciales
       if (!result.user.email) {
         throw new Error("No se pudo obtener el email. Por favor usa otro método.");
       }
-  
-      setUser({ 
+
+      const userData = { 
         displayName: result.user.displayName || result.user.email.split('@')[0],
         email: result.user.email,
-       
-      });
-  
-    } catch (err: any) { // Tipado específico para errores de Firebase
+      };
+
+      setLocalUser(userData);
+      setGlobalUser(result.user); // Actualiza el contexto global
+
+    } catch (err: any) {
       let errorMessage = "Error al autenticar";
       
-      // Manejo de errores específicos
       if (err.code) {
         switch (err.code) {
           case 'auth/account-exists-with-different-credential':
@@ -78,22 +81,27 @@ export default function Login(): JSX.Element {
       setError('Las contraseñas no coinciden');
       return;
     }
-
+  
     try {
       setLoading(true);
       if (isLoginForm) {
         // Lógica para login con email/password
-        // Aquí deberías implementar signInWithEmailAndPassword
+        // signInWithEmailAndPassword(auth, formData.email, formData.password)
       } else {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           formData.email,
           formData.password
         );
-        setUser({
+        
+        // Actualización CORREGIDA:
+        setLocalUser({
           displayName: formData.name || userCredential.user.email,
           email: userCredential.user.email
         });
+        
+        // Pasa el objeto User completo al contexto
+        setGlobalUser(userCredential.user);
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -132,13 +140,13 @@ export default function Login(): JSX.Element {
               </div>
             )}
 
-            {user ? (
+            {localUser ? (
               <div className="text-center py-8">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-3xl">👋</span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800">¡Hola {user.displayName}!</h3>
-                <p className="text-gray-600 mt-2">Has iniciado sesión como {user.email}</p>
+                <h3 className="text-xl font-semibold text-gray-800">¡Hola {localUser.displayName}!</h3>
+                <p className="text-gray-600 mt-2">Has iniciado sesión como {localUser.email}</p>
               </div>
             ) : (
               <>
