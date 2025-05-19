@@ -1,7 +1,9 @@
+
+import type { Product } from '../../src/models/Product';
+
 export interface Menu {
-  id?: number;
-  price?: number;
-  availability?: boolean;
-  restaurant_id?: number;
-  product_id?: number;
+  id: number;
+  name: string;
+  description: string;
+  products: Product[];
 }

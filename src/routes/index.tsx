@@ -14,8 +14,8 @@ const PhotoPage = lazy(() => import('../pages/CRUDpage/PhotoPage'));
 const ProductPage = lazy(() => import('../pages/CRUDpage/ProductPage'));
 const RestaurantePage = lazy(() => import('../pages/CRUDpage/RestaurantePage'));
 const ShiftPage = lazy(() => import('../pages/CRUDpage/ShiftPage'));
-const Mapa = lazy(() => import('../components/MapaPedidos'));
 const Graficas = lazy(() => import('../pages/Graficas/Graficas'));
+const Restaurante = lazy(() => import('../pages/Restaurantes/RestaurantList'));
 
 const AdminLayout = lazy(() => import('../components/AdminLayout'));
 const Chat = lazy(() => import('../pages/ChatBot/ChatBot'));
@@ -36,6 +36,11 @@ const routes = [
     path: '/registrar-restaurante',
     title: 'Registrar Restaurante',
     component: Register,
+  },
+  {
+    path: '/restaurantes',
+    title: 'Restaurantes',
+    component: Restaurante
   },
   {
     path: '/admin/ordenes',
