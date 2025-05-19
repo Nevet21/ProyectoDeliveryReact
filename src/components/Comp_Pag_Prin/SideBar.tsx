@@ -103,6 +103,13 @@ const Sidebar: React.FC = () => {
           </Link>
         </div>
 
+        {/* graficas */}
+        <div className="mt-6 bg-yellow-600 rounded-md text-center py-3 text-white hover:rounded-md cursor-pointer">
+          <Link to="/graficas">
+            Graficas
+          </Link>
+        </div>
+
 
         </div>
       </div>
