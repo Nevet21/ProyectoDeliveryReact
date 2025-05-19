@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layaouts/MainLayaout';
-import { createOrder } from '../../Services/OrderService';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: number;
@@ -13,19 +14,27 @@ interface Product {
 }
 
 const Cart: React.FC = () => {
+  const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<Product[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [address, setAddress] = useState('');
 
   useEffect(() => {
-    fetch('http://127.0.0.1:5000/products')
+    fetch('http://127.0.0.1:5000/menus')
       .then(res => res.json())
       .then(data => {
+        console.log("Menús cargados:", data);
         const productsWithQuantity = data.map((item: any) => ({
           ...item,
-          quantity: 1
+          quantity: 1,
+          price: Number(item.price),
         }));
         setCartItems(productsWithQuantity);
       })
-      .catch(err => console.error('Error al cargar productos:', err));
+      .catch(err => {
+        console.error('Error al cargar menús:', err);
+        toast.error('Error al cargar menús');
+      });
   }, []);
 
   const updateQuantity = (id: number, delta: number) => {
@@ -36,41 +45,67 @@ const Cart: React.FC = () => {
     );
   };
 
-  const handleConfirmOrder = async () => {
-    try {
-      // Aquí debes construir el objeto con las propiedades que espera tu backend
-      // Según tu ejemplo, podría ser algo así para cada producto:
-      // customer_id, menu_id (producto), motorcycle_id, quantity, total_price, status
-      // Aquí pongo valores de ejemplo, ajusta según tu lógica real
+  const sendOrders = async () => {
+    if (cartItems.length === 0) {
+      toast.warn("🛒 El carrito está vacío", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored",
+      });
+      return;
+    }
 
-      const customer_id = 1; // o del contexto de usuario
-      const motorcycle_id = 1; // o el que corresponda
-      const status = "pending";
+    try {
+      const customer_id = 1;
+      const motorcycle_id = 1;
 
       for (const item of cartItems) {
         const orderData = {
-          customer_id,
+          customer_id: customer_id,
           menu_id: item.id,
-          motorcycle_id,
+          motorcycle_id: motorcycle_id,
           quantity: item.quantity,
-          total_price: item.price * item.quantity,
-          status
+          status: "pending"
         };
 
-        const result = await createOrder(orderData);
-        if (!result) {
-          alert('Error al enviar el pedido para el producto ' + item.name);
-          return; // detener si falla uno
+        console.log("Enviando pedido:", orderData);
+
+        const response = await fetch("http://127.0.0.1:5000/orders", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Error en la respuesta:", response.status, errorText);
+          throw new Error(`Error al crear el pedido: ${errorText}`);
         }
+
+        const result = await response.json();
+        console.log("Pedido creado:", result);
       }
 
-      alert('Pedido realizado con éxito');
-      console.log('Ordenes enviadas');
-      // Aquí podrías limpiar el carrito o hacer alguna acción adicional
+      toast.success("✅ ¡Pedido realizado con éxito!", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored",
+      });
 
-    } catch (error) {
-      console.error('Error al enviar la orden:', error);
-      alert('Error al enviar el pedido');
+      setCartItems([]);
+      setAddress('');
+      setShowModal(false);
+      
+      navigate('/orders');
+    } catch (error: any) {
+      console.error("Error al procesar el pedido:", error);
+      toast.error(`❌ ${error.message || "Error al procesar el pedido"}`, {
+        position: "top-center",
+        autoClose: 4000,
+        theme: "colored",
+      });
     }
   };
 
@@ -78,6 +113,7 @@ const Cart: React.FC = () => {
 
   return (
     <MainLayout>
+      <ToastContainer />
       <div className="max-w-4xl mx-auto p-4">
         <h1 className="text-2xl font-bold mb-6">Carrito de Compras</h1>
         <div className="space-y-4">
@@ -119,19 +155,53 @@ const Cart: React.FC = () => {
             </div>
           ))}
         </div>
+
         <div className="mt-6 p-4 border-t">
+          <label className="block mb-2 font-semibold">Dirección de entrega:</label>
+          <input
+            type="text"
+            value={address}
+            onChange={e => setAddress(e.target.value)}
+            className="w-full p-2 border rounded mb-4"
+            placeholder="Ej: Calle 123 #45-67"
+          />
+
           <div className="flex justify-between text-lg font-semibold">
             <span>Total:</span>
             <span>${total.toLocaleString()}</span>
           </div>
           <button
             className="w-full mt-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={handleConfirmOrder}
+            onClick={() => setShowModal(true)}
           >
             Confirmar Pedido
           </button>
         </div>
       </div>
+
+      {/* MODAL */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full">
+            <h2 className="text-xl font-bold mb-4">¿Confirmar pedido?</h2>
+            <p className="mb-4">Total a pagar: <strong>${total.toLocaleString()}</strong></p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={sendOrders}
+                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 };
