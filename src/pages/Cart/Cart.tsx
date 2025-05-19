@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import MainLayout from '../../layaouts/MainLayaout';
 import { createOrder } from '../../Services/OrderService';
+import { useNavigate } from 'react-router-dom';
 
 interface Product {
   id: number;
@@ -13,6 +14,7 @@ interface Product {
 
 const Cart: React.FC = () => {
   const [cartItems, setCartItems] = useState<Product[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch('http://127.0.0.1:5000/products')
@@ -37,13 +39,8 @@ const Cart: React.FC = () => {
 
   const handleConfirmOrder = async () => {
     try {
-      // Aquí debes construir el objeto con las propiedades que espera tu backend
-      // Según tu ejemplo, podría ser algo así para cada producto:
-      // customer_id, menu_id (producto), motorcycle_id, quantity, total_price, status
-      // Aquí pongo valores de ejemplo, ajusta según tu lógica real
-
-      const customer_id = 1; // o del contexto de usuario
-      const motorcycle_id = 1; // o el que corresponda
+      const customer_id = 1; // Reemplazar con ID dinámico en un sistema real
+      const motorcycle_id = 1; // Asignación real basada en turnos (shift)
       const status = "pending";
 
       for (const item of cartItems) {
@@ -59,14 +56,12 @@ const Cart: React.FC = () => {
         const result = await createOrder(orderData);
         if (!result) {
           alert('Error al enviar el pedido para el producto ' + item.name);
-          return; // detener si falla uno
+          return;
         }
       }
 
       alert('Pedido realizado con éxito');
       console.log('Ordenes enviadas');
-      // Aquí podrías limpiar el carrito o hacer alguna acción adicional
-
     } catch (error) {
       console.error('Error al enviar la orden:', error);
       alert('Error al enviar el pedido');
@@ -118,16 +113,26 @@ const Cart: React.FC = () => {
             </div>
           ))}
         </div>
+
         <div className="mt-6 p-4 border-t">
           <div className="flex justify-between text-lg font-semibold">
             <span>Total:</span>
             <span>${total.toLocaleString()}</span>
           </div>
+
           <button
             className="w-full mt-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             onClick={handleConfirmOrder}
           >
             Confirmar Pedido
+          </button>
+
+          {/* Botón para ir al mapa */}
+          <button
+            className="w-full mt-2 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            onClick={() => navigate('/map')}
+          >
+            Ver Mapa de Pedidos
           </button>
         </div>
       </div>
