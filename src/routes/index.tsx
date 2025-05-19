@@ -14,7 +14,8 @@ const PhotoPage = lazy(() => import('../pages/CRUDpage/PhotoPage'));
 const ProductPage = lazy(() => import('../pages/CRUDpage/ProductPage'));
 const RestaurantePage = lazy(() => import('../pages/CRUDpage/RestaurantePage'));
 const ShiftPage = lazy(() => import('../pages/CRUDpage/ShiftPage'));
-const Graficas = lazy(() => import('../pages/Graficas/graficas'));
+const Mapa = lazy(() => import('../components/MapaPedidos'));
+const Graficas = lazy(() => import('../pages/Graficas/Graficas'));
 
 const AdminLayout = lazy(() => import('../components/AdminLayout'));
 const Chat = lazy(() => import('../pages/ChatBot/ChatBot'));
@@ -96,6 +97,11 @@ const routes = [
     path: '/cart',
     title: 'Carrito',
     component: Carrito,
+  },
+  {
+    path: '/map',
+    title: 'mapa',
+    component: Mapa,
   },
 
   {

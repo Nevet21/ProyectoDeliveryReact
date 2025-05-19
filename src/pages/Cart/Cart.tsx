@@ -156,6 +156,7 @@ const Cart: React.FC = () => {
           ))}
         </div>
 
+
         <div className="mt-6 p-4 border-t">
           <label className="block mb-2 font-semibold">Dirección de entrega:</label>
           <input
@@ -170,11 +171,20 @@ const Cart: React.FC = () => {
             <span>Total:</span>
             <span>${total.toLocaleString()}</span>
           </div>
+
           <button
             className="w-full mt-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             onClick={() => setShowModal(true)}
           >
             Confirmar Pedido
+          </button>
+
+          {/* Botón para ir al mapa */}
+          <button
+            className="w-full mt-2 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            onClick={() => navigate('/map')}
+          >
+            Ver Mapa de Pedidos
           </button>
         </div>
       </div>
