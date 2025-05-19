@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { DynamicFormModal } from "./DynamicFormModal"; // Ajusta la ruta según tu proyecto
+import { DynamicFormModal } from "./DynamicFormModal";
 
 type Column<T> = {
   key: keyof T;
@@ -12,7 +12,7 @@ type CrudPageProps<T> = {
   fetchAll: () => Promise<T[]>;
   onCreate: (newData: Omit<T, "id">) => Promise<void>;
   onView: (item: T) => void;
-  onEdit: (item: T) => void;
+  onEdit: (item: T) => Promise<void>;
   onDelete: (item: T) => Promise<void>;
 };
 
@@ -35,6 +35,7 @@ export default function CrudPage<T extends { id: number | string }>({
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<Partial<T>>({});
+  const [isReadOnly, setIsReadOnly] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -50,51 +51,71 @@ export default function CrudPage<T extends { id: number | string }>({
     }
   };
 
-  const handleCreate = async (values: T) => {
-    await onCreate(values as Omit<T, "id">);
+  const handleSubmit = async (values: T) => {
+    if (formData && formData.id) {
+      await onEdit(values);
+    } else {
+      await onCreate(values as Omit<T, "id">);
+    }
     setShowModal(false);
     setFormData({});
+    setIsReadOnly(false);
     await loadData();
+  };
+
+  const handleCreate = () => {
+    setFormData({});
+    setIsReadOnly(false);
+    setShowModal(true);
+  };
+
+  const handleEdit = (item: T) => {
+    setFormData(item);
+    setIsReadOnly(false);
+    setShowModal(true);
+  };
+
+  const handleView = (item: T) => {
+    onView(item); // llamada externa si se desea
+    setFormData(item);
+    setIsReadOnly(true);
+    setShowModal(true);
   };
 
   useEffect(() => {
     loadData();
   }, []);
 
-  // Mapeo para obtener los campos con tipo correcto para DynamicFormModal
-const fields: Field[] = columns
-  .filter((col) => col.key !== undefined && col.key !== null && col.key !== 'total_price') // 👈 exclusión aquí
-  .map((col) => {
-    const keyLower = String(col.key).toLowerCase();
+  const fields: Field[] = columns
+    .filter((col) => col.key !== "total_price")
+    .map((col) => {
+      const keyLower = String(col.key).toLowerCase();
+      let fieldType: "number" | "text" | "email" = "text";
 
-    let fieldType: "number" | "text" | "email" = "text";
+      if (keyLower.includes("email")) {
+        fieldType = "email";
+      } else if (
+        keyLower.includes("phone") ||
+        keyLower.includes("tel") ||
+        keyLower.includes("numero") ||
+        keyLower.includes("id")
+      ) {
+        fieldType = "number";
+      }
 
-    if (keyLower.includes("email")) {
-      fieldType = "email";
-    } else if (
-      keyLower.includes("phone") ||
-      keyLower.includes("tel") ||
-      keyLower.includes("numero") ||
-      keyLower.includes("id")
-    ) {
-      fieldType = "number";
-    }
-
-    return {
-      key: col.key as string,
-      label: col.label,
-      type: fieldType,
-    };
-  });
-
-
+      return {
+        key: col.key as string,
+        label: col.label,
+        type: fieldType,
+      };
+    });
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={handleCreate}
           className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg shadow cursor-pointer"
         >
           Crear
@@ -129,13 +150,13 @@ const fields: Field[] = columns
                   ))}
                   <td className="px-6 py-4 space-x-2">
                     <button
-                      onClick={() => onView(item)}
+                      onClick={() => handleView(item)}
                       className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs cursor-pointer"
                     >
                       Ver
                     </button>
                     <button
-                      onClick={() => onEdit(item)}
+                      onClick={() => handleEdit(item)}
                       className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs cursor-pointer"
                     >
                       Editar
@@ -156,11 +177,20 @@ const fields: Field[] = columns
 
       <DynamicFormModal<T>
         open={showModal}
-        title={`Crear ${title.slice(0, -1)}`}
+        title={
+          isReadOnly
+            ? `Ver ${title.slice(0, -1)}`
+            : `${formData && formData.id ? "Editar" : "Crear"} ${title.slice(0, -1)}`
+        }
         fields={fields}
         data={formData}
-        onClose={() => setShowModal(false)}
-        onSubmit={handleCreate}
+        readOnly={isReadOnly} // 👈 Aquí pasamos la prop readOnly
+        onClose={() => {
+          setShowModal(false);
+          setIsReadOnly(false);
+          setFormData({});
+        }}
+        onSubmit={handleSubmit}
       />
     </div>
   );

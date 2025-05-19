@@ -2,11 +2,8 @@ import React from "react";
 import CrudPage from "../../components/Comp_pag_Admin/CRUDpage";
 import { MenuService } from "../../Services/MenuService";
 import type { Menu } from "../../models/Menu";
-import { useNavigate } from "react-router-dom";
 
 const MenuPage: React.FC = () => {
-  const navigate = useNavigate();
-
   const columns = [
     { key: "restaurant_id", label: "ID Restaurante" },
     { key: "product_id", label: "ID Producto" },
@@ -22,8 +19,22 @@ const MenuPage: React.FC = () => {
       onCreate={async (newData) => {
         await MenuService.create(newData);
       }}
-      onView={(item) => navigate(`/menus/${item.id}`)}
-      onEdit={(item) => navigate(`/menus/${item.id}/edit`)}
+      onView={async (item) => {
+        const menu = await MenuService.getById(item.id);
+        if (!menu) alert("Menú no encontrado");
+        else console.log("Menú visto:", menu);
+      }}
+      onEdit={async (item) => {
+        const dataToUpdate = {
+          restaurant_id: item.restaurant_id,
+          product_id: item.product_id,
+          price: item.price,
+          availability: item.availability,
+        };
+        const updated = await MenuService.update(item.id, dataToUpdate);
+        if (!updated) alert("Error al actualizar el menú.");
+        else console.log("Menú actualizado:", updated);
+      }}
       onDelete={async (item) => {
         const success = await MenuService.remove(item.id);
         if (!success) {
@@ -35,4 +46,5 @@ const MenuPage: React.FC = () => {
 };
 
 export default MenuPage;
+
 

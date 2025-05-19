@@ -2,11 +2,8 @@ import React from "react";
 import CrudPage from "../../components/Comp_pag_Admin/CRUDpage";
 import { IssueService } from "../../Services/IssueService";
 import type { Issue } from "../../models/Issue";
-import { useNavigate } from "react-router-dom";
 
 const IssuePage: React.FC = () => {
-  const navigate = useNavigate();
-
   const columns = [
     { key: "motorcycle_id", label: "ID Motocicleta" },
     { key: "description", label: "Descripción" },
@@ -23,8 +20,23 @@ const IssuePage: React.FC = () => {
       onCreate={async (newData) => {
         await IssueService.create(newData);
       }}
-      onView={(item) => navigate(`/issues/${item.id}`)}
-      onEdit={(item) => navigate(`/issues/${item.id}/edit`)}
+      onView={async (item) => {
+        const issue = await IssueService.getById(item.id);
+        if (!issue) alert("Incidencia no encontrada");
+        else console.log("Incidencia vista:", issue);
+      }}
+      onEdit={async (item) => {
+        const dataToUpdate = {
+          motorcycle_id: item.motorcycle_id,
+          description: item.description,
+          issue_type: item.issue_type,
+          date_reported: item.date_reported,
+          status: item.status,
+        };
+        const updated = await IssueService.update(item.id, dataToUpdate);
+        if (!updated) alert("Error al actualizar la incidencia.");
+        else console.log("Incidencia actualizada:", updated);
+      }}
       onDelete={async (item) => {
         const success = await IssueService.remove(item.id);
         if (!success) {
